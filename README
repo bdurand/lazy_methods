@@ -12,23 +12,23 @@ A simple example:
 
 The normal way to do it (at least according to every tutorial):
 
-def index
-	@records = MyRecord.find(:all, :conditions => {:name => params[:name]})
-end
+  def index
+	  @records = MyRecord.find(:all, :conditions => {:name => params[:name]})
+  end
 
 And in the view:
 
-<% cache(params[:names]) -%>
-	<% @records.each do |record| -%>
-		<div><%=record.title%></div>
+	<% cache(params[:names]) -%>
+		<% @records.each do |record| -%>
+			<div><%=record.title%></div>
+		<% end -%>
 	<% end -%>
-<% end -%>
 
 Now even if you cache the fragments in your view that use @records, the database will still be hit to select and instantiate all the records. You could remove the code from the action and simple add it back into the view. However, this just feels wrong and is inherently harder to test. Instead just use a lazy method.
 
-def index
-	@records = MyRecord.lazy_find(:all, :conditions => {:name => params[:name]})
-end
+	def index
+		@records = MyRecord.lazy_find(:all, :conditions => {:name => params[:name]})
+	end
 
 Now, as long as no methods are invoked on @records, the original find method will never be called. As soon as the first method is called, the original find method will be called. It will never be called more than once. You can even pass in a block to the lazy method.
 
