@@ -1,5 +1,5 @@
-require File.expand_path(File.dirname(__FILE__) + '/spec_helper')
-require File.expand_path(File.dirname(__FILE__) + '/../init.rb')
+require File.expand_path(File.join(File.dirname(__FILE__), '..', 'lib', 'lazy_methods', 'lazy_methods'))
+Object.send(:include, LazyMethods::InstanceMethods) unless Object.include?(LazyMethods::InstanceMethods)
 require File.expand_path(File.dirname(__FILE__) + '/method_tester')
 
 context "LazyMethods InstanceMethods" do
