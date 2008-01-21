@@ -1,0 +1,37 @@
+== LazyMethods
+
+So your Rails application is successful beyond your wildest dreams and now your meager servers are straining under the load. You figure you'll add some caching to your views and all will be well again. Unfortunately, your controller actions load up all sorts of instance variables with records from the database. The caching won't do you much good if your database is still getting slammed. You could move your query logic to the views behind the caching layer, but that just feels icky. Besides, that will break all your tests and you really don't feel like fixing them.
+
+== Enter LazyMethods.
+
+This plugin adds a virtual lazy version of every method on every class. Lazy methods have the same name as the original method name but prefixed with "lazy_". A lazy method will return a proxy object that looks and acts just like the result from calling the actual method. The trick is that the actual method will not be called until a method is invoked on the proxy object. This way you can continue to set up the business logic in your controller and have it only actually executed only as needed.
+
+If you add fragment caching to your views and the cache returns a value and bypasses your view code, the method will never be invoked. Thanks to the magic of Ruby the proxy object will even act like the class it is proxying in class to class and kind_of?
+
+A simple example:
+
+The normal way to do it (at least according to every tutorial):
+
+  def index
+	  @records = MyRecord.find(:all, :conditions => {:name => params[:name]})
+  end
+
+And in the view:
+
+	<% cache(params[:names]) -%>
+		<% @records.each do |record| -%>
+			<div><%=record.title%></div>
+		<% end -%>
+	<% end -%>
+
+Now even if you cache the fragments in your view that use @records, the database will still be hit to select and instantiate all the records. You could remove the code from the action and simple add it back into the view. However, this just feels wrong and is inherently harder to test. Instead just use a lazy method.
+
+	def index
+		@records = MyRecord.lazy_find(:all, :conditions => {:name => params[:name]})
+	end
+
+Now, as long as no methods are invoked on @records, the original find method will never be called. As soon as the first method is called, the original find method will be called. It will never be called more than once. You can even pass in a block to the lazy method.
+
+== Testing
+
+Since the proxy object looks and acts just like the real result object, all your view tests should still pass. Your controller tests should pass will little or no tweaking.
