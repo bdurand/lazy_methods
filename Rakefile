@@ -1,43 +1,45 @@
 require 'rubygems'
 require 'rake'
 require 'rake/rdoctask'
-require 'rake/gempackagetask'
-require 'spec/rake/spectask'
 
 desc 'Default: run unit tests.'
 task :default => :test
 
-desc 'Test the lazy_methods plugin.'
-Spec::Rake::SpecTask.new(:test) do |t|
-  t.spec_files = 'spec/**/*_spec.rb'
+begin
+  require 'spec/rake/spectask'
+  desc 'Test the gem.'
+  Spec::Rake::SpecTask.new(:test) do |t|
+    t.spec_files = FileList.new('spec/**/*_spec.rb')
+  end
+rescue LoadError
+  tast :test do
+    STDERR.puts "You must have rspec >= 1.3.0 to run the tests"
+  end
 end
 
-desc 'Generate documentation for the lazy_methods plugin.'
+desc 'Generate documentation for the gem.'
 Rake::RDocTask.new(:rdoc) do |rdoc|
   rdoc.rdoc_dir = 'rdoc'
-  rdoc.options << '--title' << 'LazyMethods' << '--line-numbers' << '--inline-source' << '--main' << 'README'
-  rdoc.rdoc_files.include('README')
+  rdoc.options << '--title' << 'Lazy Methods' << '--line-numbers' << '--inline-source' << '--main' << 'README.rdoc'
+  rdoc.rdoc_files.include('README.rdoc')
   rdoc.rdoc_files.include('lib/**/*.rb')
 end
 
-spec = Gem::Specification.new do |s| 
-  s.name = "lazy_methods"
-  s.version = "1.0.2"
-  s.author = "Brian Durand"
-  s.platform = Gem::Platform::RUBY
-  s.summary = "Provide lazy method calls for all methods on every object to aid in caching."
-  s.files = FileList["lib/**/*", "MIT-LICENSE", 'Rakefile'].to_a
-  s.require_path = "lib"
-  s.test_files = FileList["{spec}/**/*.rb"].to_a
-  s.has_rdoc = true
-  s.rdoc_options << '--title' << 'LazyMethods' << '--line-numbers' << '--inline-source' << '--main' << 'README'
-  s.extra_rdoc_files = ["README"]
-  s.homepage = "http://lazymethods.rubyforge.org"
-  s.rubyforge_project = "lazymethods"
-  s.email = 'brian@embellishedvisions.com'
-end
- 
-Rake::GemPackageTask.new(spec) do |pkg| 
-  pkg.need_tar = true 
-end
+begin
+  require 'jeweler'
+  Jeweler::Tasks.new do |gem|
+    gem.name = "lazy_methods"
+    gem.summary = %Q{Gem that adds lazy method wrapping to every object. Preceding any method with lazy_ will defer the invocation until the result is actually needed.}
+    gem.description = %Q(Gem that adds lazy method wrapping to every object. Preceding any method with lazy_ will defer the invocation until the result is actually needed. This pattern is useful when used with caching systems.)
+    gem.email = "brian@embellishedvisions.com"
+    gem.homepage = "http://github.com/bdurand/acts_as_revisionable"
+    gem.authors = ["Brian Durand"]
+    gem.rdoc_options = ["--charset=UTF-8", "--main", "README.rdoc"]
+    
+    gem.add_development_dependency('rspec', '>= 1.3.0')
+    gem.add_development_dependency('jeweler')
+  end
 
+  Jeweler::GemcutterTasks.new
+rescue LoadError
+end

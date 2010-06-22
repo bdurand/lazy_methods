@@ -1,0 +1,33 @@
+== LazyMethods
+
+This gem adds a virtual lazy version of every method on every class. Lazy methods have the same name as the original method name but prefixed with +lazy_+. A lazy method will return a proxy object that looks and acts just like the result from calling the actual method. The trick is that the actual method will not be called until a method is invoked on the proxy object.
+
+This pattern works great with caching. You can have your business logic invoke lazy methods and your view logic sitting behind a cache. If the cache is hit, you won't actually end up invoking any of your business logic.
+
+=== A simple example:
+
+The business logic:
+
+  def my_action
+	  @records = MyResource.find(params[:name])
+  end
+
+And in the view:
+
+	<% cache(params[:names]) -%>
+		<% @records.each do |record| -%>
+			<div><%=record.title%></div>
+		<% end -%>
+	<% end -%>
+
+Now even if you cache the fragments in your view that use @records, the database will still be hit to select and instantiate all the records. You could remove the resource call from the business logic and add it to the view. However, this just feels wrong and is inherently harder to test. Instead just use a lazy method.
+
+	def my_action
+		@records = MyResource.lazy_find(params[:name])
+	end
+
+Now, as long as no methods are invoked on @records, the original find method will never be called. As soon as the first method is called, the original find method will be called. It will never be called more than once. You can even pass in a block to the lazy method.
+
+== Testing
+
+Since the proxy object looks and acts just like the real result object, all your view tests should still pass. Your controller tests should pass will little or no tweaking.
