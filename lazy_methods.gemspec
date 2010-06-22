@@ -16,8 +16,12 @@ Gem::Specification.new do |s|
     "README.rdoc"
   ]
   s.files = [
-    "MIT-LICENSE",
+    ".gitignore",
+     "MIT-LICENSE",
+     "README.rdoc",
      "Rakefile",
+     "VERSION",
+     "lazy_methods.gemspec",
      "lib/lazy_methods.rb",
      "lib/lazy_methods/lazy_methods.rb",
      "spec/lazy_method_spec.rb",
