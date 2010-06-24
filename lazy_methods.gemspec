@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = %q{lazy_methods}
-  s.version = "1.0.3"
+  s.version = "1.0.4"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Brian Durand"]
-  s.date = %q{2010-06-22}
+  s.date = %q{2010-06-24}
   s.description = %q{Gem that adds lazy method wrapping to every object. Preceding any method with lazy_ will defer the invocation until the result is actually needed. This pattern is useful when used with caching systems.}
   s.email = %q{brian@embellishedvisions.com}
   s.extra_rdoc_files = [
