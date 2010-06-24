@@ -11,9 +11,10 @@ module LazyMethods
     
     # Override missing method to add the lazy method handling
     def method_missing_with_lazy (method, *args, &block)
-      if method.to_s[0, 5] == 'lazy_'
+      method = method.to_s
+      if method[0, 5] == 'lazy_'
         method = method.to_s
-        return Proxy.new(self, method[5, method.length].to_sym, args, &block)
+        return Proxy.new(self, method[5, method.length], args, &block)
       else
         # Keep track of the current missing method calls to keep out of an infinite loop
         stack = Thread.current[:lazy_method_missing_methods] ||= []
@@ -48,7 +49,7 @@ module LazyMethods
   # The proxy object does all the heavy lifting.
   class Proxy
     # These methods we don't want to override. All other existing methods will be redefined.
-    PROTECTED_METHODS = %w(initialize __proxy_result__ __proxy_loaded__ method_missing)
+    PROTECTED_METHODS = %w(initialize __proxy_result__ __proxy_loaded__ method_missing __send__ object_id)
     
     def initialize (obj, method, args = nil, &block)
       @object = obj
@@ -58,7 +59,7 @@ module LazyMethods
       
       # Override already defined methods on Object to proxy them to the result object
       methods.each do |m|
-        eval "def self.#{m} (*args, &block); __proxy_result__.send(:#{m}, *args, &block); end" unless PROTECTED_METHODS.include?(m)
+        eval "def self.#{m} (*args, &block); __proxy_result__.send(:#{m}, *args, &block); end" unless PROTECTED_METHODS.include?(m.to_s)
       end
     end
     
