@@ -6,14 +6,13 @@ desc 'Default: run unit tests.'
 task :default => :test
 
 begin
-  require 'spec/rake/spectask'
-  desc 'Test the gem.'
-  Spec::Rake::SpecTask.new(:test) do |t|
-    t.spec_files = FileList.new('spec/**/*_spec.rb')
-  end
+  require 'rspec'
+  require 'rspec/core/rake_task'
+  desc 'Run the unit tests'
+  RSpec::Core::RakeTask.new(:test)
 rescue LoadError
-  tast :test do
-    STDERR.puts "You must have rspec >= 1.3.0 to run the tests"
+  task :test do
+    STDERR.puts "You must have rspec 2.0 installed to run the tests"
   end
 end
 
@@ -32,11 +31,11 @@ begin
     gem.summary = %Q{Gem that adds lazy method wrapping to every object. Preceding any method with lazy_ will defer the invocation until the result is actually needed.}
     gem.description = %Q(Gem that adds lazy method wrapping to every object. Preceding any method with lazy_ will defer the invocation until the result is actually needed. This pattern is useful when used with caching systems.)
     gem.email = "brian@embellishedvisions.com"
-    gem.homepage = "http://github.com/bdurand/acts_as_revisionable"
+    gem.homepage = "http://github.com/bdurand/lazy_methods"
     gem.authors = ["Brian Durand"]
     gem.rdoc_options = ["--charset=UTF-8", "--main", "README.rdoc"]
     
-    gem.add_development_dependency('rspec', '>= 1.3.0')
+    gem.add_development_dependency('rspec', '>= 2.0.0')
     gem.add_development_dependency('jeweler')
   end
 
