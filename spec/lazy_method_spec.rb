@@ -17,6 +17,16 @@ describe LazyMethods::InstanceMethods do
     proxy.__proxy_loaded__.should == false
   end
   
+  it "should remove itself from stacktraces thrown in method_missing" do
+    begin
+      "object".call_a_missing_method_that_does_not_exist
+      raise "should not get here"
+    rescue => e
+      async_source_file = File.expand_path("../../lib/lazy_methods/lazy_methods.rb", __FILE__)
+      File.exist?(async_source_file).should == true
+      e.backtrace.join("\n").should_not include(async_source_file)
+    end
+  end
 end
 
 describe LazyMethods::Proxy do

@@ -14,7 +14,8 @@ module LazyMethods
       method = method.to_s
       if method[0, 5] == 'lazy_'
         method = method.to_s
-        return Proxy.new(self, method[5, method.length], args, &block)
+        called_method = method[5, method.length]
+        return Proxy.new(self, called_method, args, &block)
       else
         # Keep track of the current missing method calls to keep out of an infinite loop
         stack = Thread.current[:lazy_method_missing_methods] ||= []
@@ -23,6 +24,10 @@ module LazyMethods
         begin
           stack.push(sig)
           return method_missing_without_lazy(method, *args, &block)
+        rescue Exception => e
+          # Strip this method from the stack trace as it adds confusion
+          e.backtrace.reject!{|line| line.include?(__FILE__)}
+          raise e
         ensure
           stack.pop
         end
@@ -41,7 +46,7 @@ module LazyMethods
     end
     
     def eql? (sig)
-      sig.kind_of(MethodSignature) and sig.object == @object and sig.method == @method
+      sig.kind_of(MethodSignature) && sig.object == @object && sig.method == @method
     end
     
   end
@@ -49,18 +54,18 @@ module LazyMethods
   # The proxy object does all the heavy lifting.
   class Proxy
     # These methods we don't want to override. All other existing methods will be redefined.
-    PROTECTED_METHODS = %w(initialize __proxy_result__ __proxy_loaded__ method_missing __send__ object_id)
+    PROTECTED_METHODS = %w(initialize method_missing __proxy_result__ __proxy_loaded__ __send__ __id__ object_id)
+    
+    # Override already defined methods on Object to proxy them to the result object
+    instance_methods.each do |m|
+      undef_method(m) unless PROTECTED_METHODS.include?(m.to_s)
+    end
     
     def initialize (obj, method, args = nil, &block)
       @object = obj
       @method = method
       @args = args || []
       @block = block
-      
-      # Override already defined methods on Object to proxy them to the result object
-      methods.each do |m|
-        eval "def self.#{m} (*args, &block); __proxy_result__.send(:#{m}, *args, &block); end" unless PROTECTED_METHODS.include?(m.to_s)
-      end
     end
     
     # Get the result of the original method call. The original method will only be called once.
