@@ -25,8 +25,21 @@ To define a lazy method, simply include the LazyMethods module in your class def
 
 == Asynchronous Methods
 
-Asynchronouse methods are similar to lazy methods. The method call will return immediately with a proxy object. The difference is that the original method will be invoked immediately in a separate thread. When a method is called on the proxy object, the 
+Asynchronouse methods are similar to lazy methods. The method call will return immediately with a proxy object. The difference is that the original method will be invoked immediately in a separate thread. When a method is called on the proxy object, the thread will block until the result is returned. This can be useful if you have methods that wait on IO like web service calls.
 
+=== Example
+
+  class MyModel
+    include LazyMethods
+    define_async_methods :get_related_info
+    define_async_class_methods :find
+  end
+  
+  objects = MyModel.async_find          # The find method will be called in a new thread
+  objects.size                          # Execution will wait until the find thread has finished
+  objects.each do |obj|
+    obj.async_get_related_info          # A new thread will be started for each object to call get_related_info
+  end
 
 == Usage Notes
 
