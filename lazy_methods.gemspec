@@ -5,36 +5,40 @@
 
 Gem::Specification.new do |s|
   s.name = %q{lazy_methods}
-  s.version = "1.0.6"
+  s.version = "2.0.0"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Brian Durand"]
-  s.date = %q{2011-01-24}
-  s.description = %q{Gem that adds lazy method wrapping to every object. Preceding any method with lazy_ will defer the invocation until the result is actually needed. This pattern is useful when used with caching systems.}
+  s.date = %q{2011-08-29}
+  s.description = %q{Gem that adds lazy method delegation methods. Using this gem you can easily define lazy loading or asynchronous versions of specific methods. Lazy loading is useful when used with caching systems while asynchronous methods can improve throughput on I/O bound processes like making several HTTP calls in row.}
   s.email = %q{brian@embellishedvisions.com}
   s.extra_rdoc_files = [
     "README.rdoc"
   ]
   s.files = [
+    ".travis.yml",
+    "Gemfile",
+    "Gemfile.lock",
     "MIT-LICENSE",
     "README.rdoc",
     "Rakefile",
     "VERSION",
     "lazy_methods.gemspec",
     "lib/lazy_methods.rb",
-    "lib/lazy_methods/lazy_methods.rb",
     "spec/lazy_method_spec.rb",
     "spec/method_tester.rb",
+    "spec/proxy_spec.rb",
     "spec/spec_helper.rb"
   ]
   s.homepage = %q{http://github.com/bdurand/lazy_methods}
   s.rdoc_options = ["--charset=UTF-8", "--main", "README.rdoc"]
   s.require_paths = ["lib"]
-  s.rubygems_version = %q{1.4.1}
-  s.summary = %q{Gem that adds lazy method wrapping to every object. Preceding any method with lazy_ will defer the invocation until the result is actually needed.}
+  s.rubygems_version = %q{1.6.2}
+  s.summary = %q{Gem that adds lazy method delegation methods. Using this gem you can easily define lazy loading or asynchronous versions of specific methods. Lazy loading is useful when used with caching systems while asynchronous methods can improve throughput on I/O bound processes like making several HTTP calls in row.}
   s.test_files = [
     "spec/lazy_method_spec.rb",
     "spec/method_tester.rb",
+    "spec/proxy_spec.rb",
     "spec/spec_helper.rb"
   ]
 
@@ -42,13 +46,19 @@ Gem::Specification.new do |s|
     s.specification_version = 3
 
     if Gem::Version.new(Gem::VERSION) >= Gem::Version.new('1.2.0') then
+      s.add_runtime_dependency(%q<rake>, [">= 0"])
+      s.add_runtime_dependency(%q<rspec>, [">= 2.6.0"])
       s.add_development_dependency(%q<rspec>, [">= 2.0.0"])
       s.add_development_dependency(%q<jeweler>, [">= 0"])
     else
+      s.add_dependency(%q<rake>, [">= 0"])
+      s.add_dependency(%q<rspec>, [">= 2.6.0"])
       s.add_dependency(%q<rspec>, [">= 2.0.0"])
       s.add_dependency(%q<jeweler>, [">= 0"])
     end
   else
+    s.add_dependency(%q<rake>, [">= 0"])
+    s.add_dependency(%q<rspec>, [">= 2.6.0"])
     s.add_dependency(%q<rspec>, [">= 2.0.0"])
     s.add_dependency(%q<jeweler>, [">= 0"])
   end
