@@ -1,107 +1,86 @@
-require File.expand_path(File.join(File.dirname(__FILE__), '..', 'lib', 'lazy_methods', 'lazy_methods'))
-Object.send(:include, LazyMethods::InstanceMethods) unless Object.include?(LazyMethods::InstanceMethods)
-require File.expand_path(File.dirname(__FILE__) + '/method_tester')
+require 'spec_helper'
 
-describe LazyMethods::InstanceMethods do
-  
-  let(:object) { MethodTester.new }
-  
-  it "should inject lazy method handling" do
-    proxy = object.lazy_test("arg")
-    proxy.to_s.should == "ARG"
-    proxy.__proxy_loaded__.should == true
-  end
-  
-  it "should return a proxy object that has not been invoked yet" do
-    proxy = object.lazy_test("arg")
-    proxy.__proxy_loaded__.should == false
-  end
-  
-  it "should remove itself from stacktraces thrown in method_missing" do
-    begin
-      "object".call_a_missing_method_that_does_not_exist
-      raise "should not get here"
-    rescue => e
-      async_source_file = File.expand_path("../../lib/lazy_methods/lazy_methods.rb", __FILE__)
-      File.exist?(async_source_file).should == true
-      e.backtrace.join("\n").should_not include(async_source_file)
+describe LazyMethods do
+  context "lazy methods" do
+    let(:object){ LazyMethods::Tester.new }
+    
+    it "should define a lazy version of a method" do
+      proxy = object.lazy_test_method("woo")
+      object.test_method_called.should == 0
+      proxy.should == "WOO"
+      object.test_method_called.should == 1
+      proxy.to_s
+      object.test_method_called.should == 1
+    end
+    
+    it "should define a lazy version of a method that takes a block" do
+      block_evaled = false
+      proxy = object.lazy_test_method("woo"){ block_evaled = !block_evaled }
+      object.test_method_called.should == 0
+      block_evaled.should == false
+      proxy.should == "WOO"
+      object.test_method_called.should == 1
+      block_evaled.should == true
+      proxy.to_s
+      object.test_method_called.should == 1
+      block_evaled.should == true
+    end
+    
+    it "should define a lazy version of a class method" do
+      LazyMethods::Tester.test_class_method_called = 0
+      block_evaled = false
+      proxy = LazyMethods::Tester.lazy_test_class_method("woo"){ block_evaled = !block_evaled }
+      LazyMethods::Tester.test_class_method_called.should == 0
+      block_evaled.should == false
+      proxy.should == "WOO"
+      LazyMethods::Tester.test_class_method_called.should == 1
+      block_evaled.should == true
+      proxy.to_s
+      LazyMethods::Tester.test_class_method_called.should == 1
+      block_evaled.should == true
     end
   end
-end
-
-describe LazyMethods::Proxy do
   
-  let(:object) { MethodTester.new }
-  
-  it "should be able to wrap a method without executing it" do
-    proxy = object.lazy_test("arg")
-    object.test_called.should == 0
-  end
-  
-  it "should execute the wrapped method when it needs to" do
-    proxy = object.lazy_test("arg")
-    proxy.to_s
-    object.test_called.should == 1
-  end
-  
-  it "should only execute the wrapped method once" do
-    proxy = object.lazy_test("arg")
-    proxy.to_s
-    proxy.to_s
-    object.test_called.should == 1
-  end
-  
-  it "should allow nil as a valid proxied value" do
-    proxy = object.lazy_test(nil)
-    proxy.should_not
-    object.test_called.should == 1
-  end
-  
-  it "should allow blocks in the lazy method" do
-    n = 1
-    proxy = object.lazy_test("arg") do
-      n = 2
+  context "async methods" do
+    let(:object){ LazyMethods::Tester.new }
+    
+    it "should define an asynchronous version of a method" do
+      proxy = object.async_test_method("woo")
+      object.test_method_called.should == 0
+      sleep(0.2)
+      object.test_method_called.should == 1
+      proxy.should == "WOO"
+      proxy.to_s
+      object.test_method_called.should == 1
     end
-    n.should == 1
-    proxy.to_s
-    n.should == 2
-  end
-  
-  it "should be indistinguishable from the real object" do
-    proxy = object.lazy_test("arg")
-    proxy.class.should == String
-    proxy.kind_of?(String).should == true
-  end
-  
-  it "should proxy core methods on Object" do
-    proxy = "xxx".lazy_to_s
-    proxy.should == "xxx"
-  end
-  
-  it "should proxy missing methods" do
-    proxy = object.lazy_find_test
-    proxy.to_s.should == "FINDER"
-  end
-  
-  it "should allow blocks in the lazy missing methods" do
-    n = 1
-    proxy = object.lazy_find_test do
-      n = 2
+    
+    it "should define an asynchronous version of a method that takes a block" do
+      block_evaled = false
+      proxy = object.async_test_method("woo"){ block_evaled = !block_evaled }
+      object.test_method_called.should == 0
+      block_evaled.should == false
+      sleep(0.2)
+      object.test_method_called.should == 1
+      block_evaled.should == true
+      proxy.should == "WOO"
+      proxy.to_s
+      object.test_method_called.should == 1
+      block_evaled.should == true
     end
-    n.should == 1
-    proxy.to_s
-    n.should == 2
+    
+    it "should define an asynchronous version of a class method" do
+      LazyMethods::Tester.test_class_method_called = 0
+      block_evaled = false
+      proxy = LazyMethods::Tester.async_test_class_method("woo"){ block_evaled = !block_evaled }
+      LazyMethods::Tester.test_class_method_called.should == 0
+      block_evaled.should == false
+      sleep(0.2)
+      LazyMethods::Tester.test_class_method_called.should == 1
+      block_evaled.should == true
+      proxy.should == "WOO"
+      proxy.to_s
+      LazyMethods::Tester.test_class_method_called.should == 1
+      block_evaled.should == true
+    end
   end
-  
-  it "should not interfere with the proxied object's method_missing" do
-    real = object.find_test
-    real.to_s.should == "FINDER"
-  end
-  
-  it "should not interfere with real methods that begin with lazy_" do
-    object.lazy_real_method_called.should == false
-    object.lazy_real_method
-    object.lazy_real_method_called.should == true
-  end
-  
 end

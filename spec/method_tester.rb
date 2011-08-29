@@ -1,31 +1,35 @@
-# This class is used for testing the lazy_methods plugin functionality.
+# This class is used for testing the lazy_methods functionality.
 
-class MethodTester
+class LazyMethods::Tester
+  include LazyMethods
   
-  attr_reader :test_called, :lazy_real_method_called
+  attr_reader :test_method_called
+  
+  define_lazy_methods :test_method, :to_s
+  define_async_methods :test_method, :to_s
+  define_lazy_class_methods :test_class_method, :to_s
+  define_async_class_methods :test_class_method, :to_s
   
   def initialize
-    @test_called = 0
+    @test_method_called = 0
     @lazy_real_method_called = false
   end
   
-  def test (arg)
-    @test_called += 1
+  def test_method(arg)
+    sleep(0.02)
+    @test_method_called += 1
     yield if block_given?
     arg.upcase if arg
   end
   
-  def lazy_real_method
-    @lazy_real_method_called = true
-  end
-  
-  def method_missing (method, *args, &block)
-    if method.to_s[0, 5] == 'find_'
+  class << self
+    attr_accessor :test_class_method_called
+    
+    def test_class_method(arg)
+      sleep(0.02)
+      @test_class_method_called = (self.test_class_method_called || 0) + 1
       yield if block_given?
-      "FINDER"
-    else
-      super
+      arg.upcase if arg
     end
-  end
-  
+  end  
 end
