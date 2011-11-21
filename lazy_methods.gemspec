@@ -4,21 +4,19 @@
 # -*- encoding: utf-8 -*-
 
 Gem::Specification.new do |s|
-  s.name = %q{lazy_methods}
-  s.version = "2.0.0"
+  s.name = "lazy_methods"
+  s.version = "2.0.1"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Brian Durand"]
-  s.date = %q{2011-08-29}
-  s.description = %q{Gem that adds lazy method delegation methods. Using this gem you can easily define lazy loading or asynchronous versions of specific methods. Lazy loading is useful when used with caching systems while asynchronous methods can improve throughput on I/O bound processes like making several HTTP calls in row.}
-  s.email = %q{brian@embellishedvisions.com}
+  s.date = "2011-11-21"
+  s.description = "Gem that adds lazy method delegation methods. Using this gem you can easily define lazy loading or asynchronous versions of specific methods. Lazy loading is useful when used with caching systems while asynchronous methods can improve throughput on I/O bound processes like making several HTTP calls in row."
+  s.email = "brian@embellishedvisions.com"
   s.extra_rdoc_files = [
     "README.rdoc"
   ]
   s.files = [
     ".travis.yml",
-    "Gemfile",
-    "Gemfile.lock",
     "MIT-LICENSE",
     "README.rdoc",
     "Rakefile",
@@ -30,35 +28,23 @@ Gem::Specification.new do |s|
     "spec/proxy_spec.rb",
     "spec/spec_helper.rb"
   ]
-  s.homepage = %q{http://github.com/bdurand/lazy_methods}
+  s.homepage = "http://github.com/bdurand/lazy_methods"
   s.rdoc_options = ["--charset=UTF-8", "--main", "README.rdoc"]
   s.require_paths = ["lib"]
-  s.rubygems_version = %q{1.6.2}
-  s.summary = %q{Gem that adds lazy method delegation methods. Using this gem you can easily define lazy loading or asynchronous versions of specific methods. Lazy loading is useful when used with caching systems while asynchronous methods can improve throughput on I/O bound processes like making several HTTP calls in row.}
-  s.test_files = [
-    "spec/lazy_method_spec.rb",
-    "spec/method_tester.rb",
-    "spec/proxy_spec.rb",
-    "spec/spec_helper.rb"
-  ]
+  s.rubygems_version = "1.8.10"
+  s.summary = "Gem that adds lazy method delegation methods. Using this gem you can easily define lazy loading or asynchronous versions of specific methods. Lazy loading is useful when used with caching systems while asynchronous methods can improve throughput on I/O bound processes like making several HTTP calls in row."
 
   if s.respond_to? :specification_version then
     s.specification_version = 3
 
     if Gem::Version.new(Gem::VERSION) >= Gem::Version.new('1.2.0') then
-      s.add_runtime_dependency(%q<rake>, [">= 0"])
-      s.add_runtime_dependency(%q<rspec>, [">= 2.6.0"])
       s.add_development_dependency(%q<rspec>, [">= 2.0.0"])
       s.add_development_dependency(%q<jeweler>, [">= 0"])
     else
-      s.add_dependency(%q<rake>, [">= 0"])
-      s.add_dependency(%q<rspec>, [">= 2.6.0"])
       s.add_dependency(%q<rspec>, [">= 2.0.0"])
       s.add_dependency(%q<jeweler>, [">= 0"])
     end
   else
-    s.add_dependency(%q<rake>, [">= 0"])
-    s.add_dependency(%q<rspec>, [">= 2.6.0"])
     s.add_dependency(%q<rspec>, [">= 2.0.0"])
     s.add_dependency(%q<jeweler>, [">= 0"])
   end
